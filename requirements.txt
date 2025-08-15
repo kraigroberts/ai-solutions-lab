@@ -6,3 +6,6 @@ sentence-transformers
 faiss-cpu
 numpy
 pypdf
+openai
+anthropic
+llama-cpp-python
