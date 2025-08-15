@@ -4,14 +4,15 @@ Unit tests for agent tools.
 Tests the search, math, and web stub tools used by the agent system.
 """
 
-import pytest
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import AsyncMock, Mock, patch
 
+import pytest
+
+from ai_lab.tools.math import MathTool
 from ai_lab.tools.registry import Tool, ToolRegistry
 from ai_lab.tools.search import SearchTool
-from ai_lab.tools.math import MathTool
 from ai_lab.tools.webstub import WebStubTool
 
 
@@ -20,6 +21,7 @@ class TestTool:
 
     def test_tool_creation(self):
         """Test creating a tool."""
+
         def test_function(input_data: str) -> str:
             return f"Processed: {input_data}"
 
@@ -28,7 +30,7 @@ class TestTool:
             description="A test tool",
             function=test_function,
             input_schema={"type": "string", "description": "Input string"},
-            examples=[{"input": "hello", "output": "Processed: hello"}]
+            examples=[{"input": "hello", "output": "Processed: hello"}],
         )
 
         assert tool.name == "test_tool"
@@ -39,6 +41,7 @@ class TestTool:
 
     def test_tool_execute(self):
         """Test tool execution."""
+
         def test_function(input_data: str) -> str:
             return f"Processed: {input_data}"
 
@@ -47,7 +50,7 @@ class TestTool:
             description="A test tool",
             function=test_function,
             input_schema={"type": "string", "description": "Input string"},
-            examples=[{"input": "hello", "output": "Processed: hello"}]
+            examples=[{"input": "hello", "output": "Processed: hello"}],
         )
 
         result = tool.execute("test input")
@@ -60,7 +63,7 @@ class TestTool:
             description="A test tool",
             function=lambda x: x,
             input_schema={"type": "string"},
-            examples=[{"input": "test", "output": "test"}]
+            examples=[{"input": "test", "output": "test"}],
         )
 
         tool_dict = tool.to_dict()
@@ -92,7 +95,7 @@ class TestToolRegistry:
             description="Custom tool",
             function=test_function,
             input_schema={"type": "string"},
-            examples=[]
+            examples=[],
         )
 
         registry.register_tool(tool)
@@ -113,7 +116,7 @@ class TestToolRegistry:
             description="Temporary tool",
             function=test_function,
             input_schema={"type": "string"},
-            examples=[]
+            examples=[],
         )
 
         registry.register_tool(tool)
@@ -127,7 +130,7 @@ class TestToolRegistry:
     def test_get_tool(self):
         """Test getting a tool by name."""
         registry = ToolRegistry()
-        
+
         # Test getting existing tool
         search_tool = registry.get_tool("search")
         assert search_tool is not None
@@ -141,7 +144,7 @@ class TestToolRegistry:
         """Test listing all tools."""
         registry = ToolRegistry()
         tools = registry.list_tools()
-        
+
         assert isinstance(tools, list)
         assert len(tools) > 0
         assert all(isinstance(tool, Tool) for tool in tools)
@@ -150,7 +153,7 @@ class TestToolRegistry:
         """Test getting tool descriptions."""
         registry = ToolRegistry()
         descriptions = registry.get_tool_descriptions()
-        
+
         assert isinstance(descriptions, list)
         assert len(descriptions) > 0
         assert all("name" in desc for desc in descriptions)
@@ -159,7 +162,7 @@ class TestToolRegistry:
     def test_execute_tool(self):
         """Test executing a tool."""
         registry = ToolRegistry()
-        
+
         # Test executing search tool
         result = registry.execute_tool("search", "test query")
         assert isinstance(result, str)
@@ -176,18 +179,20 @@ class TestSearchTool:
     @pytest.fixture
     def mock_retriever(self):
         """Mock VectorRetriever."""
-        with patch('ai_lab.tools.search.VectorRetriever') as mock_retriever_class:
+        with patch("ai_lab.tools.search.VectorRetriever") as mock_retriever_class:
             mock_retriever = Mock()
             mock_retriever.is_loaded.return_value = True
-            mock_retriever.retrieve = AsyncMock(return_value=[
-                {
-                    "content": "Test content about AI",
-                    "title": "AI Basics",
-                    "source_path": "/test.md",
-                    "score": 0.85,
-                    "rank": 1
-                }
-            ])
+            mock_retriever.retrieve = AsyncMock(
+                return_value=[
+                    {
+                        "content": "Test content about AI",
+                        "title": "AI Basics",
+                        "source_path": "/test.md",
+                        "score": 0.85,
+                        "rank": 1,
+                    }
+                ]
+            )
             mock_retriever_class.return_value = mock_retriever
             yield mock_retriever
 
@@ -226,9 +231,7 @@ class TestSearchTool:
         """Test search with custom options."""
         search_tool = SearchTool()
         result = await search_tool.search_with_options(
-            "test query",
-            top_k=3,
-            score_threshold=0.7
+            "test query", top_k=3, score_threshold=0.7
         )
 
         assert isinstance(result, str)
@@ -243,15 +246,15 @@ class TestSearchTool:
                 "title": "Doc 1",
                 "source_path": "/doc1.md",
                 "score": 0.9,
-                "rank": 1
+                "rank": 1,
             },
             {
                 "content": "Content 2",
                 "title": "Doc 2",
                 "source_path": "/doc2.md",
                 "score": 0.8,
-                "rank": 2
-            }
+                "rank": 2,
+            },
         ]
 
         formatted = search_tool._format_search_results(results, "test query")
@@ -542,6 +545,7 @@ class TestWebStubTool:
 # INTEGRATION TESTS
 # =============================================================================
 
+
 class TestToolIntegration:
     """Integration tests for tool interactions."""
 
@@ -549,15 +553,15 @@ class TestToolIntegration:
     async def test_tool_registry_with_all_tools(self):
         """Test that all tools work together in the registry."""
         registry = ToolRegistry()
-        
+
         # Test search tool
         search_result = registry.execute_tool("search", "test query")
         assert isinstance(search_result, str)
-        
+
         # Test math tool
         math_result = registry.execute_tool("math", "2 + 2")
         assert "4" in math_result
-        
+
         # Test web tool
         web_result = registry.execute_tool("web", "https://example.com")
         assert "example.com" in web_result
@@ -566,11 +570,11 @@ class TestToolIntegration:
     async def test_tool_error_handling(self):
         """Test error handling across tools."""
         registry = ToolRegistry()
-        
+
         # Test invalid tool name
         with pytest.raises(ValueError):
             registry.execute_tool("invalid_tool", "input")
-        
+
         # Test invalid input to math tool
         math_result = registry.execute_tool("math", "invalid expression")
         assert "error" in math_result.lower()
@@ -580,6 +584,7 @@ class TestToolIntegration:
 # PERFORMANCE TESTS
 # =============================================================================
 
+
 class TestToolPerformance:
     """Performance tests for tools."""
 
@@ -587,13 +592,14 @@ class TestToolPerformance:
     async def test_math_tool_performance(self):
         """Test math tool performance with complex expressions."""
         math_tool = MathTool()
-        
+
         import time
+
         start_time = time.time()
-        
+
         # Complex expression
         result = await math_tool.evaluate("(2^10 + sqrt(144)) * (5 - 2)")
-        
+
         execution_time = time.time() - start_time
         assert execution_time < 1.0  # Should complete within 1 second
         assert "1028" in result  # (1024 + 12) * 3
@@ -601,21 +607,30 @@ class TestToolPerformance:
     @pytest.mark.asyncio
     async def test_search_tool_performance(self):
         """Test search tool performance."""
-        with patch('ai_lab.tools.search.VectorRetriever') as mock_retriever_class:
+        with patch("ai_lab.tools.search.VectorRetriever") as mock_retriever_class:
             mock_retriever = Mock()
             mock_retriever.is_loaded.return_value = True
-            mock_retriever.retrieve = AsyncMock(return_value=[
-                {"content": "Test content", "title": "Test", "source_path": "/test.md", "score": 0.9, "rank": 1}
-            ])
+            mock_retriever.retrieve = AsyncMock(
+                return_value=[
+                    {
+                        "content": "Test content",
+                        "title": "Test",
+                        "source_path": "/test.md",
+                        "score": 0.9,
+                        "rank": 1,
+                    }
+                ]
+            )
             mock_retriever_class.return_value = mock_retriever
-            
+
             search_tool = SearchTool()
-            
+
             import time
+
             start_time = time.time()
-            
+
             result = await search_tool.search("test query")
-            
+
             execution_time = time.time() - start_time
             assert execution_time < 2.0  # Should complete within 2 seconds
             assert "Test content" in result
@@ -625,6 +640,7 @@ class TestToolPerformance:
 # ERROR HANDLING TESTS
 # =============================================================================
 
+
 class TestToolErrorHandling:
     """Test error handling in tools."""
 
@@ -632,12 +648,12 @@ class TestToolErrorHandling:
     async def test_math_tool_edge_cases(self):
         """Test math tool with edge cases."""
         math_tool = MathTool()
-        
+
         # Very long expression
         long_expr = "2 + " * 100 + "1"
         result = await math_tool.evaluate(long_expr)
         assert "too long" in result.lower()
-        
+
         # Division by zero (should be handled gracefully)
         result = await math_tool.evaluate("1 / 0")
         assert "error" in result.lower()
@@ -645,46 +661,46 @@ class TestToolErrorHandling:
     @pytest.mark.asyncio
     async def test_search_tool_error_handling(self):
         """Test search tool error handling."""
-        with patch('ai_lab.tools.search.VectorRetriever') as mock_retriever_class:
+        with patch("ai_lab.tools.search.VectorRetriever") as mock_retriever_class:
             mock_retriever = Mock()
             mock_retriever.is_loaded.return_value = True
             mock_retriever.retrieve = AsyncMock(side_effect=Exception("Database error"))
             mock_retriever_class.return_value = mock_retriever
-            
+
             search_tool = SearchTool()
             result = await search_tool.search("test query")
-            
+
             assert "error" in result.lower()
             assert "Database error" in result
 
     def test_tool_registry_error_handling(self):
         """Test tool registry error handling."""
         registry = ToolRegistry()
-        
+
         # Test registering tool with duplicate name
         def test_function(input_data: str) -> str:
             return input_data
-        
+
         tool1 = Tool(
             name="duplicate_tool",
             description="First tool",
             function=test_function,
             input_schema={"type": "string"},
-            examples=[]
+            examples=[],
         )
-        
+
         tool2 = Tool(
             name="duplicate_tool",
             description="Second tool",
             function=test_function,
             input_schema={"type": "string"},
-            examples=[]
+            examples=[],
         )
-        
+
         # First registration should work
         registry.register_tool(tool1)
         assert "duplicate_tool" in registry.tools
-        
+
         # Second registration should overwrite
         registry.register_tool(tool2)
         assert registry.tools["duplicate_tool"].description == "Second tool"
