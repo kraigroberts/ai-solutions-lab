@@ -5,8 +5,14 @@ from pathlib import Path
 import tempfile
 import shutil
 
-from src.ai_lab.document_ingestion import DocumentIngester, DocumentChunk
-from src.ai_lab.vector_store import VectorStore
+import sys
+from pathlib import Path
+
+# Add src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+from ai_lab.document_ingestion import DocumentIngester, DocumentChunk
+from ai_lab.vector_store import VectorStore
 
 
 class TestDocumentIngestion:

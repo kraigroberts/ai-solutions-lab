@@ -14,7 +14,7 @@ except ImportError:
     print("Please install: pip install faiss-cpu sentence-transformers")
     raise
 
-from src.ai_lab.document_ingestion import DocumentChunk
+from .document_ingestion import DocumentChunk
 
 class VectorStore:
     """Enhanced vector store with FAISS and persistence."""
@@ -219,7 +219,7 @@ class VectorStore:
 
 def main():
     """Demo the enhanced vector store."""
-    from src.ai_lab.document_ingestion import DocumentIngester
+    from .document_ingestion import DocumentIngester
     
     # Initialize components
     ingester = DocumentIngester(chunk_size=500, chunk_overlap=100)
