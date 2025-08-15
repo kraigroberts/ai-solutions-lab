@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Solutions Lab - Advanced AI Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .search-input {
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .result-card {
+            transition: all 0.3s ease;
+        }
+        .result-card:hover {
+            transform: translateX(5px);
+            border-left-color: #667eea;
+        }
+        .loading-dots {
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0%, 20% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                        <div class="h-8 w-8 gradient-bg rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">AI</span>
+                        </div>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="/" class="text-gray-900 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                🔍 Search
+                            </a>
+                            <a href="/upload" class="text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                📁 Upload
+                            </a>
+                            <a href="/analytics" class="text-gray-500 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                📊 Analytics
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">v1.0.0</span>
+                    <div class="h-2 w-2 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="gradient-bg text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                    AI Solutions Lab
+                </h1>
+                <p class="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
+                    Experience the future of AI-powered search and document intelligence. 
+                    Advanced RAG, hybrid search, and real-time analytics in one platform.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <div class="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3">
+                        <span class="text-sm">🔍 Hybrid Search</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3">
+                        <span class="text-sm">🤖 AI RAG</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3">
+                        <span class="text-sm">📊 Analytics</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3">
+                        <span class="text-sm">⚡ Real-time</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Search Section -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 card-hover">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                    🔍 Intelligent Search & RAG
+                </h2>
+                <p class="text-gray-600 text-lg">
+                    Search through your documents with AI-powered intelligence and get instant answers
+                </p>
+            </div>
+
+            <!-- Search Form -->
+            <div class="max-w-4xl mx-auto">
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <div class="flex-1">
+                        <input 
+                            type="text" 
+                            id="search-query" 
+                            placeholder="Ask anything about your documents..." 
+                            class="search-input w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-all"
+                        >
+                    </div>
+                    <button 
+                        onclick="performSearch()" 
+                        id="search-btn"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-colors flex items-center justify-center space-x-2"
+                    >
+                        <span>Search</span>
+                        <i data-feather="search" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Search Options -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Search Type</label>
+                        <select id="search-type" class="w-full p-2 border border-gray-300 rounded-md">
+                            <option value="hybrid">🔀 Hybrid (Recommended)</option>
+                            <option value="semantic">🧠 Semantic</option>
+                            <option value="keyword">🔑 Keyword</option>
+                        </select>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Max Results</label>
+                        <select id="max-results" class="w-full p-2 border border-gray-300 rounded-md">
+                            <option value="5">5 results</option>
+                            <option value="10" selected>10 results</option>
+                            <option value="20">20 results</option>
+                        </select>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">RAG Answer</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="generate-answer" checked class="rounded">
+                            <span class="text-sm text-gray-600">Generate AI answer</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900">
+                        📋 Search Results
+                    </h3>
+                    <div class="flex items-center space-x-4">
+                        <span id="result-count" class="text-gray-600"></span>
+                        <span id="search-time" class="text-gray-600"></span>
+                    </div>
+                </div>
+                
+                <div id="search-results" class="space-y-4">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+
+            <!-- RAG Answer Section -->
+            <div id="rag-section" class="hidden">
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl shadow-xl p-8">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">
+                        🤖 AI-Generated Answer
+                    </h3>
+                    <div id="rag-answer" class="bg-white rounded-lg p-6 shadow-sm">
+                        <!-- RAG answer will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 card-hover cursor-pointer" onclick="window.location.href='/upload'">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">📁</div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Upload Documents</h3>
+                    <p class="text-gray-600">Add PDFs, DOCX, and more to your knowledge base</p>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 card-hover cursor-pointer" onclick="window.location.href='/analytics'">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">📊</div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">View Analytics</h3>
+                    <p class="text-gray-600">Monitor performance and search insights</p>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 card-hover cursor-pointer" onclick="window.location.href='/docs'">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">🔧</div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">API Docs</h3>
+                    <p class="text-gray-600">Explore the complete API reference</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">
+                📈 Platform Statistics
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-blue-600" id="total-docs">-</div>
+                    <div class="text-sm text-gray-500">Documents</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-green-600" id="total-searches">-</div>
+                    <div class="text-sm text-gray-500">Searches</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-purple-600" id="avg-response">-</div>
+                    <div class="text-sm text-gray-500">Avg Response</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-orange-600" id="system-status">-</div>
+                    <div class="text-sm text-gray-500">Status</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="text-2xl font-bold mb-4">AI Solutions Lab</div>
+            <p class="text-gray-400 mb-6">
+                Advanced AI-powered search and document intelligence platform
+            </p>
+            <div class="flex justify-center space-x-6 text-sm text-gray-400">
+                <span>Built with FastAPI</span>
+                <span>•</span>
+                <span>Powered by AI</span>
+                <span>•</span>
+                <span>Production Ready</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Feather icons
+        feather.replace();
+
+        // Load initial stats
+        loadStats();
+
+        async function loadStats() {
+            try {
+                const [analyticsResponse, systemResponse] = await Promise.all([
+                    fetch('/api/v1/analytics'),
+                    fetch('/api/v1/system')
+                ]);
+
+                if (analyticsResponse.ok) {
+                    const analytics = await analyticsResponse.json();
+                    updateStats(analytics);
+                }
+
+                if (systemResponse.ok) {
+                    const system = await systemResponse.json();
+                    updateSystemStatus(system);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function updateStats(data) {
+            const searchAnalytics = data.search_analytics || {};
+            const vectorStats = data.vector_store_stats || {};
+            
+            document.getElementById('total-docs').textContent = vectorStats.total_documents || 0;
+            document.getElementById('total-searches').textContent = searchAnalytics.total_searches || 0;
+            document.getElementById('avg-response').textContent = `${Math.round((searchAnalytics.avg_response_time || 0) * 1000)}ms`;
+        }
+
+        function updateSystemStatus(data) {
+            const status = data.status || 'unknown';
+            const statusText = status === 'operational' ? '🟢 Online' : '🔴 Offline';
+            document.getElementById('system-status').textContent = statusText;
+        }
+
+        async function performSearch() {
+            const query = document.getElementById('search-query').value.trim();
+            if (!query) return;
+
+            const searchBtn = document.getElementById('search-btn');
+            const originalText = searchBtn.innerHTML;
+            
+            // Show loading state
+            searchBtn.innerHTML = '<span>Searching</span><span class="loading-dots">...</span>';
+            searchBtn.disabled = true;
+
+            try {
+                const searchType = document.getElementById('search-type').value;
+                const maxResults = document.getElementById('max-results').value;
+                const generateAnswer = document.getElementById('generate-answer').checked;
+
+                const searchData = {
+                    query: query,
+                    search_type: searchType,
+                    max_results: parseInt(maxResults),
+                    generate_answer: generateAnswer,
+                    include_highlights: true
+                };
+
+                const startTime = performance.now();
+                const response = await fetch('/api/v1/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(searchData)
+                });
+
+                const searchResults = await response.json();
+                const endTime = performance.now();
+
+                displayResults(searchResults, endTime - startTime);
+                
+                // Generate RAG answer if requested
+                if (generateAnswer && searchResults.results && searchResults.results.length > 0) {
+                    await generateRAGAnswer(query, searchResults.results.slice(0, 3));
+                }
+
+            } catch (error) {
+                console.error('Search error:', error);
+                showError('Search failed. Please try again.');
+            } finally {
+                // Restore button state
+                searchBtn.innerHTML = originalText;
+                searchBtn.disabled = false;
+            }
+        }
+
+        function displayResults(results, searchTime) {
+            const resultsSection = document.getElementById('results-section');
+            const resultsContainer = document.getElementById('search-results');
+            const resultCount = document.getElementById('result-count');
+            const searchTimeElement = document.getElementById('search-time');
+
+            resultsSection.classList.remove('hidden');
+            resultCount.textContent = `${results.total_results || 0} results found`;
+            searchTimeElement.textContent = `in ${(searchTime / 1000).toFixed(3)}s`;
+
+            if (!results.results || results.results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-6xl mb-4">🔍</div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">No results found</h3>
+                        <p class="text-gray-600">Try adjusting your search terms or upload more documents</p>
+                    </div>
+                `;
+                return;
+            }
+
+            resultsContainer.innerHTML = results.results.map((result, index) => `
+                <div class="result-card bg-gray-50 rounded-lg p-6 border-l-4 border-gray-200">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+                                #${index + 1}
+                            </span>
+                            <span class="text-sm text-gray-500">Score: ${result.combined_score?.toFixed(3) || 'N/A'}</span>
+                        </div>
+                        <span class="text-xs text-gray-400">${result.source_file || 'Unknown source'}</span>
+                    </div>
+                    <div class="text-gray-800 mb-3">
+                        ${result.document?.substring(0, 300)}${result.document?.length > 300 ? '...' : ''}
+                    </div>
+                    ${result.highlights ? `
+                        <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
+                            <div class="text-sm font-medium text-yellow-800 mb-2">Highlights:</div>
+                            <div class="text-sm text-yellow-700">${result.highlights}</div>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function generateRAGAnswer(query, topResults) {
+            try {
+                const ragData = {
+                    question: query,
+                    documents_to_retrieve: topResults.length,
+                    generate_answer: true
+                };
+
+                const response = await fetch('/api/v1/rag', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(ragData)
+                });
+
+                const ragResult = await response.json();
+                displayRAGAnswer(ragResult);
+            } catch (error) {
+                console.error('RAG error:', error);
+            }
+        }
+
+        function displayRAGAnswer(ragResult) {
+            const ragSection = document.getElementById('rag-section');
+            const ragAnswer = document.getElementById('rag-answer');
+
+            ragSection.classList.remove('hidden');
+            
+            if (ragResult.answer) {
+                ragAnswer.innerHTML = `
+                    <div class="prose max-w-none">
+                        <p class="text-lg text-gray-800 mb-4">${ragResult.answer}</p>
+                        <div class="border-t pt-4">
+                            <div class="text-sm text-gray-600">
+                                <strong>Confidence:</strong> ${(ragResult.confidence * 100).toFixed(1)}%<br>
+                                <strong>Processing Time:</strong> ${ragResult.processing_time?.toFixed(3)}s<br>
+                                <strong>LLM Provider:</strong> ${ragResult.llm_provider || 'Unknown'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                ragAnswer.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="text-4xl mb-4">🤖</div>
+                        <p class="text-gray-600">AI answer generation failed. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function showError(message) {
+            // Simple error display - could be enhanced with a toast notification
+            alert(message);
+        }
+
+        // Enter key to search
+        document.getElementById('search-query').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Auto-refresh stats every 30 seconds
+        setInterval(loadStats, 30000);
+    </script>
+</body>
+</html>
