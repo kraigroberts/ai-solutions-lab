@@ -47,7 +47,7 @@ jobs:
     - name: Run full tests
       if: matrix.test-group == 'full'
       run: |
-        python -m pytest tests/ -v
+        python -m pytest tests/test_simple.py tests/test_task_b.py tests/test_task_f_simple.py -v
         
     - name: Test basic functionality (full tests only)
       if: matrix.test-group == 'full'

@@ -19,3 +19,11 @@ pypdf
 
 # Utilities
 python-dotenv
+
+# Task F dependencies
+PyJWT
+psutil
+docker
+
+# Additional dependencies that might be needed
+requests
