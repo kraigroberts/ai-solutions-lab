@@ -9,3 +9,6 @@ pypdf
 openai
 anthropic
 llama-cpp-python
+PyJWT
+psutil
+docker

@@ -1,0 +1,29 @@
+{
+  "admin": {
+    "username": "admin",
+    "email": "admin@ai-solutions-lab.local",
+    "password_hash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+    "role": "admin",
+    "permissions": [
+      "document_delete",
+      "analytics_export",
+      "search_advanced",
+      "analytics_view",
+      "rag_basic",
+      "system_config",
+      "system_status",
+      "search_basic",
+      "document_view",
+      "user_management",
+      "document_upload",
+      "search_batch",
+      "rag_advanced"
+    ],
+    "created_at": 1755270103.812406,
+    "last_login": null,
+    "is_active": true,
+    "profile": {
+      "full_name": "System Administrator"
+    }
+  }
+}
