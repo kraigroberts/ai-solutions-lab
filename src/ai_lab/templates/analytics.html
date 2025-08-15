@@ -7,32 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
-    <style>
-        .metric-card {
-            transition: all 0.3s ease;
-        }
-        .metric-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        .chart-container {
-            position: relative;
-            height: 300px;
-        }
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-        }
-        .status-operational { background-color: #10b981; }
-        .status-degraded { background-color: #f59e0b; }
-        .status-unhealthy { background-color: #ef4444; }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-    </style>
+    <link rel="stylesheet" href="/static/styles.css">
+    <!-- Custom styles moved to external CSS file -->
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Navigation -->
