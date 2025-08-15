@@ -355,7 +355,9 @@ class VectorRetriever:
                 }
 
             documents[doc_id]["chunk_count"] = int(documents[doc_id]["chunk_count"]) + 1
-            documents[doc_id]["total_content_length"] = int(documents[doc_id]["total_content_length"]) + len(chunk.content)
+            documents[doc_id]["total_content_length"] = int(
+                documents[doc_id]["total_content_length"]
+            ) + len(chunk.content)
 
         return list(documents.values())
 

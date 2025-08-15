@@ -294,12 +294,20 @@ class DocumentIngester:
         if self.settings.embeddings_backend == "local" and self.embedding_model:
             # Use local sentence-transformers
             embeddings = self.embedding_model.encode(texts, convert_to_tensor=False)
-            result = embeddings.tolist() if hasattr(embeddings, 'tolist') else embeddings
-            if isinstance(result, list) and all(isinstance(x, list) and all(isinstance(y, (int, float)) for y in x) for x in result):
+            result = (
+                embeddings.tolist() if hasattr(embeddings, "tolist") else embeddings
+            )
+            if isinstance(result, list) and all(
+                isinstance(x, list) and all(isinstance(y, (int, float)) for y in x)
+                for x in result
+            ):
                 return result
             else:
                 # Convert to proper format if needed
-                return [[float(y) for y in x] if isinstance(x, list) else [float(x)] for x in result]
+                return [
+                    [float(y) for y in x] if isinstance(x, list) else [float(x)]
+                    for x in result
+                ]
         elif self.settings.has_openai():
             # Use OpenAI embeddings
             from ..llm.openai import OpenAIProvider

@@ -23,6 +23,7 @@ class RAGAnswerer:
         """Initialize RAG answerer."""
         self.settings = get_settings()
         from pathlib import Path
+
         path_obj = Path(index_path) if index_path else None
         self.retriever = VectorRetriever(path_obj)
         self.llm_router = LLMRouter()
