@@ -40,7 +40,7 @@ jobs:
     - name: Run fast tests
       if: matrix.test-group == 'fast'
       run: |
-        python -m pytest tests/test_task_a.py tests/test_task_b.py -v
+        python -m pytest tests/test_simple.py tests/test_task_b.py -v
         
     - name: Run full tests
       if: matrix.test-group == 'full'

@@ -11,8 +11,9 @@ pytest
 
 # Minimal ML (lightweight versions)
 numpy
-# Note: sentence-transformers and faiss-cpu excluded for CI speed
-# These can be mocked in tests if needed
+
+# Document processing (needed for tests)
+pypdf
 
 # Utilities
 python-dotenv
