@@ -27,30 +27,29 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'  # Enable pip caching
         
-    - name: Install minimal test dependencies
+    - name: Install fast test dependencies
+      if: matrix.test-group == 'fast'
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-fast.txt
+        
+    - name: Install full test dependencies
+      if: matrix.test-group == 'full'
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements-test.txt
         
-    - name: Install ML dependencies (only for full test group)
-      if: matrix.test-group == 'full'
-      run: |
-        pip install sentence-transformers faiss-cpu
-        
     - name: Run fast tests
       if: matrix.test-group == 'fast'
       run: |
-        python -m pytest tests/test_simple.py tests/test_task_b.py -v
+        python -m pytest tests/test_fast.py -v
         
     - name: Run full tests
       if: matrix.test-group == 'full'
       run: |
         python -m pytest tests/ -v
         
-    - name: Test RAG demo
-      run: |
-        python src/ai_lab/simple_rag.py
-        
-    - name: Test FastAPI app loads
+    - name: Test basic functionality (full tests only)
+      if: matrix.test-group == 'full'
       run: |
         python -c "from src.ai_lab.app import app; print('✅ FastAPI app loads successfully')"

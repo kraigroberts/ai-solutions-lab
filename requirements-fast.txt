@@ -1,0 +1,8 @@
+# Ultra-fast test requirements - no ML dependencies
+# Only what's absolutely needed for basic structure tests
+
+# Testing
+pytest
+
+# Basic utilities
+python-dotenv
