@@ -53,6 +53,18 @@ async def root(request: Request):
     """Serve the main web interface."""
     return templates.TemplateResponse("index.html", {"request": request})
 
+# Upload interface endpoint
+@app.get("/upload", response_class=HTMLResponse)
+async def upload_interface(request: Request):
+    """Serve the document upload interface."""
+    return templates.TemplateResponse("upload.html", {"request": request})
+
+# Analytics dashboard endpoint
+@app.get("/analytics", response_class=HTMLResponse)
+async def analytics_dashboard(request: Request):
+    """Serve the analytics dashboard."""
+    return templates.TemplateResponse("analytics.html", {"request": request})
+
 # Health check endpoint
 @app.get("/health")
 async def health_check():

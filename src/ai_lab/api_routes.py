@@ -1,7 +1,7 @@
 """Comprehensive API routes for AI Solutions Lab."""
 
 from typing import List, Dict, Any, Optional
-from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks, File, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 import json
@@ -257,6 +257,57 @@ async def add_documents_endpoint(request: DocumentUploadRequest):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Document upload failed: {str(e)}")
+
+@api_router.post("/documents/upload", summary="Upload File")
+async def upload_file(file: UploadFile = File(...)):
+    """Upload and process a single file."""
+    try:
+        from .document_ingestion import DocumentIngester
+        from pathlib import Path
+        
+        vector_store, llm_config, advanced_search, enhanced_rag = get_components()
+        
+        # Save uploaded file temporarily
+        temp_dir = Path("./temp_uploads")
+        temp_dir.mkdir(exist_ok=True)
+        
+        file_path = temp_dir / file.filename
+        with open(file_path, "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
+        
+        # Process file based on type
+        ingester = DocumentIngester()
+        
+        if file.filename.lower().endswith('.pdf'):
+            text = ingester.load_pdf(file_path)
+        elif file.filename.lower().endswith('.md') or file.filename.lower().endswith('.markdown'):
+            text = ingester.load_markdown(file_path)
+        else:
+            # Assume text file
+            with open(file_path, 'r', encoding='utf-8') as f:
+                text = f.read()
+        
+        # Clean and chunk text
+        cleaned_text = ingester.clean_text(text)
+        chunks = ingester.chunk_text(cleaned_text, str(file_path))
+        
+        # Add to vector store
+        vector_store.add_documents(chunks)
+        
+        # Clean up temp file
+        file_path.unlink()
+        
+        return {
+            "message": f"File {file.filename} processed successfully",
+            "filename": file.filename,
+            "chunks": len(chunks),
+            "size_mb": len(content) / (1024 * 1024),
+            "status": "success"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
 
 @api_router.get("/documents", summary="Get Document Statistics")
 async def get_documents_endpoint():

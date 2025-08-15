@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Upload - AI Solutions Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.css" type="text/css" />
+    <style>
+        .dropzone { 
+            border: 2px dashed #3b82f6; 
+            border-radius: 8px; 
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+        .dropzone:hover { 
+            border-color: #1d4ed8; 
+            background: #eff6ff; 
+        }
+        .dropzone.dz-drag-hover { 
+            border-color: #059669; 
+            background: #ecfdf5; 
+        }
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        .file-card {
+            transition: all 0.3s ease;
+        }
+        .file-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">
+                📚 Document Upload & Processing
+            </h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Upload documents to instantly make them searchable with AI-powered RAG. 
+                Supports PDF, DOCX, TXT, and Markdown files.
+            </p>
+        </div>
+
+        <!-- Upload Zone -->
+        <div class="max-w-4xl mx-auto mb-8">
+            <div id="upload-zone" class="dropzone p-12 text-center">
+                <div class="space-y-4">
+                    <div class="text-6xl">📁</div>
+                    <h3 class="text-2xl font-semibold text-gray-700">
+                        Drag & Drop Files Here
+                    </h3>
+                    <p class="text-gray-500">
+                        or click to browse files
+                    </p>
+                    <div class="text-sm text-gray-400">
+                        Supports: PDF, DOCX, TXT, MD (Max 50MB each)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processing Queue -->
+        <div id="processing-queue" class="max-w-4xl mx-auto space-y-4" style="display: none;">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                🔄 Processing Queue
+            </h3>
+            <div id="queue-items"></div>
+        </div>
+
+        <!-- Uploaded Files -->
+        <div id="uploaded-files" class="max-w-4xl mx-auto space-y-4" style="display: none;">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                ✅ Processed Files
+            </h3>
+            <div id="file-list" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"></div>
+        </div>
+
+        <!-- Stats -->
+        <div class="max-w-4xl mx-auto mt-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    📊 Upload Statistics
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="total-files">0</div>
+                        <div class="text-sm text-gray-500">Total Files</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600" id="processed-files">0</div>
+                        <div class="text-sm text-gray-500">Processed</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-purple-600" id="total-chunks">0</div>
+                        <div class="text-sm text-gray-500">Text Chunks</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-orange-600" id="total-size">0 MB</div>
+                        <div class="text-sm text-gray-500">Total Size</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Dropzone
+        const dropzone = new Dropzone("#upload-zone", {
+            url: "/api/v1/documents/upload",
+            maxFilesize: 50, // MB
+            acceptedFiles: ".pdf,.docx,.txt,.md,.markdown",
+            addRemoveLinks: true,
+            autoProcessQueue: false,
+            parallelUploads: 3,
+            maxFiles: 10,
+            dictDefaultMessage: "Drop files here to upload",
+            dictFileTooBig: "File is too big ({{filesize}}MB). Max filesize: {{maxFilesize}}MB.",
+            dictInvalidFileType: "You can't upload files of this type.",
+            dictResponseError: "Server responded with {{statusCode}} code.",
+            dictCancelUpload: "Cancel upload",
+            dictCancelUploadConfirmation: "Are you sure you want to cancel this upload?",
+            dictRemoveFile: "Remove file",
+            dictMaxFilesExceeded: "You can not upload any more files."
+        });
+
+        let uploadStats = {
+            totalFiles: 0,
+            processedFiles: 0,
+            totalChunks: 0,
+            totalSize: 0
+        };
+
+        // Handle file added
+        dropzone.on("addedfile", function(file) {
+            console.log("File added:", file.name);
+            showProcessingQueue();
+            addToQueue(file);
+        });
+
+        // Handle upload progress
+        dropzone.on("uploadprogress", function(file, progress) {
+            updateFileProgress(file, progress);
+        });
+
+        // Handle successful upload
+        dropzone.on("success", function(file, response) {
+            console.log("Upload success:", response);
+            updateStats(response);
+            moveToProcessed(file, response);
+            dropzone.removeFile(file);
+        });
+
+        // Handle upload error
+        dropzone.on("error", function(file, errorMessage) {
+            console.error("Upload error:", errorMessage);
+            showError(file, errorMessage);
+        });
+
+        // Handle queue completion
+        dropzone.on("queuecomplete", function() {
+            console.log("Queue complete");
+            hideProcessingQueue();
+        });
+
+        // Start processing when files are added
+        dropzone.on("addedfile", function() {
+            setTimeout(() => {
+                dropzone.processQueue();
+            }, 100);
+        });
+
+        function showProcessingQueue() {
+            document.getElementById('processing-queue').style.display = 'block';
+        }
+
+        function hideProcessingQueue() {
+            document.getElementById('processing-queue').style.display = 'none';
+        }
+
+        function addToQueue(file) {
+            const queueItems = document.getElementById('queue-items');
+            const fileId = 'file-' + Date.now() + Math.random().toString(36).substr(2, 9);
+            
+            const fileCard = document.createElement('div');
+            fileCard.id = fileId;
+            fileCard.className = 'file-card bg-white rounded-lg shadow p-4 border-l-4 border-blue-500';
+            fileCard.innerHTML = `
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="text-2xl">📄</div>
+                        <div>
+                            <div class="font-medium text-gray-800">${file.name}</div>
+                            <div class="text-sm text-gray-500">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-400" id="status-${fileId}">Queued</div>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="progress-bar bg-blue-600 h-2 rounded-full" style="width: 0%" id="progress-${fileId}"></div>
+                </div>
+            `;
+            
+            queueItems.appendChild(fileCard);
+            
+            // Store file reference
+            file.fileId = fileId;
+        }
+
+        function updateFileProgress(file, progress) {
+            if (file.fileId) {
+                const progressBar = document.getElementById(`progress-${file.fileId}`);
+                const status = document.getElementById(`status-${file.fileId}`);
+                
+                if (progressBar) {
+                    progressBar.style.width = progress + '%';
+                }
+                
+                if (status) {
+                    if (progress < 100) {
+                        status.textContent = `Uploading ${Math.round(progress)}%`;
+                    } else {
+                        status.textContent = 'Processing...';
+                    }
+                }
+            }
+        }
+
+        function moveToProcessed(file, response) {
+            // Remove from queue
+            if (file.fileId) {
+                const queueItem = document.getElementById(file.fileId);
+                if (queueItem) {
+                    queueItem.remove();
+                }
+            }
+
+            // Add to processed files
+            showUploadedFiles();
+            addToFileList(file, response);
+        }
+
+        function showUploadedFiles() {
+            document.getElementById('uploaded-files').style.display = 'block';
+        }
+
+        function addToFileList(file, response) {
+            const fileList = document.getElementById('file-list');
+            
+            const fileCard = document.createElement('div');
+            fileCard.className = 'file-card bg-white rounded-lg shadow p-4 border-l-4 border-green-500';
+            fileCard.innerHTML = `
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="text-2xl">✅</div>
+                        <div>
+                            <div class="font-medium text-gray-800">${file.name}</div>
+                            <div class="text-sm text-gray-500">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Chunks:</span>
+                        <span class="font-medium">${response.chunks || 0}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Status:</span>
+                        <span class="text-green-600 font-medium">Processed</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Added to:</span>
+                        <span class="font-medium">Vector Store</span>
+                    </div>
+                </div>
+            `;
+            
+            fileList.appendChild(fileCard);
+        }
+
+        function updateStats(response) {
+            uploadStats.totalFiles++;
+            uploadStats.processedFiles++;
+            uploadStats.totalChunks += response.chunks || 0;
+            uploadStats.totalSize += response.size_mb || 0;
+            
+            document.getElementById('total-files').textContent = uploadStats.totalFiles;
+            document.getElementById('processed-files').textContent = uploadStats.processedFiles;
+            document.getElementById('total-chunks').textContent = uploadStats.totalChunks;
+            document.getElementById('total-size').textContent = uploadStats.totalSize.toFixed(2) + ' MB';
+        }
+
+        function showError(file, errorMessage) {
+            if (file.fileId) {
+                const queueItem = document.getElementById(file.fileId);
+                if (queueItem) {
+                    queueItem.className = 'file-card bg-red-50 rounded-lg shadow p-4 border-l-4 border-red-500';
+                    const status = document.getElementById(`status-${file.fileId}`);
+                    if (status) {
+                        status.textContent = 'Error';
+                        status.className = 'text-sm text-red-600 font-medium';
+                    }
+                }
+            }
+        }
+
+        // Load initial stats
+        loadStats();
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/v1/documents/stats');
+                const stats = await response.json();
+                
+                uploadStats.totalFiles = stats.total_files || 0;
+                uploadStats.processedFiles = stats.processed_files || 0;
+                uploadStats.totalChunks = stats.total_chunks || 0;
+                uploadStats.totalSize = stats.total_size_mb || 0;
+                
+                updateStatsDisplay();
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('total-files').textContent = uploadStats.totalFiles;
+            document.getElementById('processed-files').textContent = uploadStats.processedFiles;
+            document.getElementById('total-chunks').textContent = uploadStats.totalChunks;
+            document.getElementById('total-size').textContent = uploadStats.totalSize.toFixed(2) + ' MB';
+        }
+    </script>
+</body>
+</html>

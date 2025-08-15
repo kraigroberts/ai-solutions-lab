@@ -37,6 +37,9 @@ class VectorStore:
         self.metadata_file = self.index_dir / "metadata.json"
         self.index_file = self.index_dir / "faiss_index.bin"
         
+        # Try to load existing index
+        self.load_index()
+        
     def add_documents(self, chunks: List[DocumentChunk]) -> None:
         """Add document chunks to the vector store."""
         if not chunks:

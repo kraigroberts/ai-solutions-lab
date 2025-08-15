@@ -5,25 +5,84 @@
     "password_hash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
     "role": "admin",
     "permissions": [
-      "document_delete",
-      "analytics_export",
       "search_advanced",
-      "analytics_view",
-      "rag_basic",
+      "document_upload",
       "system_config",
-      "system_status",
+      "document_delete",
       "search_basic",
+      "search_batch",
+      "system_status",
+      "analytics_view",
       "document_view",
       "user_management",
-      "document_upload",
-      "search_batch",
-      "rag_advanced"
+      "rag_advanced",
+      "rag_basic",
+      "analytics_export"
     ],
     "created_at": 1755270103.812406,
     "last_login": null,
     "is_active": true,
     "profile": {
       "full_name": "System Administrator"
+    }
+  },
+  "alice": {
+    "username": "alice",
+    "email": "alice@example.com",
+    "password_hash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+    "role": "power_user",
+    "permissions": [
+      "search_advanced",
+      "document_upload",
+      "search_basic",
+      "search_batch",
+      "system_status",
+      "rag_advanced",
+      "document_view",
+      "analytics_view",
+      "rag_basic",
+      "analytics_export"
+    ],
+    "created_at": 1755281161.493593,
+    "last_login": 1755281161.494355,
+    "is_active": true,
+    "profile": {
+      "full_name": "alice"
+    }
+  },
+  "bob": {
+    "username": "bob",
+    "email": "bob@example.com",
+    "password_hash": "c6ba91b90d922e159893f46c387e5dc1b3dc5c101a5a4522f03b987177a24a91",
+    "role": "user",
+    "permissions": [
+      "search_advanced",
+      "search_basic",
+      "document_view",
+      "analytics_view",
+      "rag_basic"
+    ],
+    "created_at": 1755281161.4939861,
+    "last_login": null,
+    "is_active": true,
+    "profile": {
+      "full_name": "bob"
+    }
+  },
+  "guest": {
+    "username": "guest",
+    "email": "guest@example.com",
+    "password_hash": "6b93ccba414ac1d0ae1e77f3fac560c748a6701ed6946735a49d463351518e16",
+    "role": "guest",
+    "permissions": [
+      "search_basic",
+      "document_view"
+    ],
+    "created_at": 1755281161.494176,
+    "last_login": null,
+    "is_active": true,
+    "profile": {
+      "full_name": "guest"
     }
   }
 }

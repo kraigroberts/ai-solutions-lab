@@ -1,0 +1,151 @@
+{
+  "search_metrics": [
+    {
+      "query": "machine learning 0",
+      "search_type": "hybrid",
+      "processing_time": 0.1,
+      "results_count": 5,
+      "cache_hit": true,
+      "user_satisfaction": null,
+      "filters_used": {
+        "file_type": ".md",
+        "min_confidence": 0.5
+      },
+      "timestamp": 1755281156.485759
+    },
+    {
+      "query": "machine learning 1",
+      "search_type": "hybrid",
+      "processing_time": 0.15000000000000002,
+      "results_count": 6,
+      "cache_hit": false,
+      "user_satisfaction": null,
+      "filters_used": {
+        "file_type": ".md",
+        "min_confidence": 0.5
+      },
+      "timestamp": 1755281156.485769
+    },
+    {
+      "query": "machine learning 2",
+      "search_type": "hybrid",
+      "processing_time": 0.2,
+      "results_count": 7,
+      "cache_hit": false,
+      "user_satisfaction": null,
+      "filters_used": {
+        "file_type": ".md",
+        "min_confidence": 0.5
+      },
+      "timestamp": 1755281156.4857721
+    },
+    {
+      "query": "machine learning 3",
+      "search_type": "hybrid",
+      "processing_time": 0.25,
+      "results_count": 8,
+      "cache_hit": true,
+      "user_satisfaction": null,
+      "filters_used": {
+        "file_type": ".md",
+        "min_confidence": 0.5
+      },
+      "timestamp": 1755281156.485774
+    },
+    {
+      "query": "machine learning 4",
+      "search_type": "hybrid",
+      "processing_time": 0.30000000000000004,
+      "results_count": 9,
+      "cache_hit": false,
+      "user_satisfaction": null,
+      "filters_used": {
+        "file_type": ".md",
+        "min_confidence": 0.5
+      },
+      "timestamp": 1755281156.485775
+    },
+    {
+      "query": "machine learning 5",
+      "search_type": "hybrid",
+      "processing_time": 0.35,
+      "results_count": 10,
+      "cache_hit": false,
+      "user_satisfaction": null,
+      "filters_used": {
+        "file_type": ".md",
+        "min_confidence": 0.5
+      },
+      "timestamp": 1755281156.485777
+    },
+    {
+      "query": "machine learning 6",
+      "search_type": "hybrid",
+      "processing_time": 0.4,
+      "results_count": 11,
+      "cache_hit": true,
+      "user_satisfaction": null,
+      "filters_used": {
+        "file_type": ".md",
+        "min_confidence": 0.5
+      },
+      "timestamp": 1755281156.4857779
+    },
+    {
+      "query": "machine learning 7",
+      "search_type": "hybrid",
+      "processing_time": 0.45000000000000007,
+      "results_count": 12,
+      "cache_hit": false,
+      "user_satisfaction": null,
+      "filters_used": {
+        "file_type": ".md",
+        "min_confidence": 0.5
+      },
+      "timestamp": 1755281156.48578
+    },
+    {
+      "query": "machine learning 8",
+      "search_type": "hybrid",
+      "processing_time": 0.5,
+      "results_count": 13,
+      "cache_hit": false,
+      "user_satisfaction": null,
+      "filters_used": {
+        "file_type": ".md",
+        "min_confidence": 0.5
+      },
+      "timestamp": 1755281156.485781
+    },
+    {
+      "query": "machine learning 9",
+      "search_type": "hybrid",
+      "processing_time": 0.55,
+      "results_count": 14,
+      "cache_hit": true,
+      "user_satisfaction": null,
+      "filters_used": {
+        "file_type": ".md",
+        "min_confidence": 0.5
+      },
+      "timestamp": 1755281156.485782
+    }
+  ],
+  "query_patterns": {
+    "machine learning 0": 1,
+    "machine learning 1": 1,
+    "machine learning 2": 1,
+    "machine learning 3": 1,
+    "machine learning 4": 1,
+    "machine learning 5": 1,
+    "machine learning 6": 1,
+    "machine learning 7": 1,
+    "machine learning 8": 1,
+    "machine learning 9": 1
+  },
+  "filter_usage": {
+    "file_type:.md": 10,
+    "min_confidence:0.5": 10
+  },
+  "save_timestamp": 1755281156.486631
+}
