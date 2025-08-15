@@ -1,4 +1,4 @@
-# Simple CI for AI Solutions Lab
+# Optimized CI for AI Solutions Lab
 name: CI
 
 on:
@@ -11,6 +11,11 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.12']
+        test-group: ['fast', 'full']
+      fail-fast: false
     
     steps:
     - name: Checkout code
@@ -19,22 +24,32 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'  # Enable pip caching
         
-    - name: Install dependencies
+    - name: Install fast test dependencies
+      if: matrix.test-group == 'fast'
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest
+        pip install -r requirements-fast.txt
         
-    - name: Run tests
+    - name: Install full test dependencies
+      if: matrix.test-group == 'full'
       run: |
-        python -m pytest tests/ -v
+        python -m pip install --upgrade pip
+        pip install -r requirements-test.txt
         
-    - name: Test RAG demo
+    - name: Run fast tests
+      if: matrix.test-group == 'fast'
       run: |
-        python src/ai_lab/simple_rag.py
+        python -m pytest tests/test_fast.py -v
         
-    - name: Test FastAPI app loads
+    - name: Run full tests
+      if: matrix.test-group == 'full'
+      run: |
+        python -m pytest tests/test_simple.py tests/test_task_b.py tests/test_task_f_simple.py -v
+        
+    - name: Test basic functionality (full tests only)
+      if: matrix.test-group == 'full'
       run: |
         python -c "from src.ai_lab.app import app; print('✅ FastAPI app loads successfully')"

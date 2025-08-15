@@ -1,0 +1,29 @@
+# Minimal test requirements - fastest CI possible
+# Only what's absolutely needed for tests to pass
+
+# Core web framework
+fastapi
+uvicorn
+pydantic
+
+# Testing
+pytest
+
+# Minimal ML (lightweight versions)
+numpy
+sentence-transformers
+faiss-cpu
+
+# Document processing (needed for tests)
+pypdf
+
+# Utilities
+python-dotenv
+
+# Task F dependencies
+PyJWT
+psutil
+docker
+
+# Additional dependencies that might be needed
+requests
