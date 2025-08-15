@@ -1,151 +1,58 @@
-"""
-Command-line interface for AI Solutions Lab.
-
-Provides subcommands for:
-- chat: Interactive chat with LLM backends
-- rag: Query documents using RAG pipeline
-- agent: Run agent with tool calling
-- ingest: Build vector index from documents
-"""
+"""Command-line interface for AI Solutions Lab."""
 
 import argparse
 import asyncio
-import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
-from . import __version__
 from .config import get_settings
-from .llm.router import LLMRouter
-from .rag.answer import RAGAnswerer
-from .rag.ingest import DocumentIngester
-from .tools.registry import ToolRegistry
 
 
 def create_parser() -> argparse.ArgumentParser:
-    """Create the main argument parser with subcommands."""
+    """Create command-line argument parser."""
     parser = argparse.ArgumentParser(
-        prog="ai-lab",
-        description="AI Solutions Lab - LLM-powered features with RAG and agent capabilities",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  ai-lab chat --message "Hello, how are you?"
-  ai-lab rag --query "What is machine learning?"
-  ai-lab agent --goal "Calculate 15 * 23 and search for Python info"
-  ai-lab ingest build --src ./docs --out ./index
-        """,
+        description="AI Solutions Lab - Clean System Design with LLM Integrations and RAG Pipelines"
     )
 
-    parser.add_argument(
-        "--version", action="version", version=f"AI Solutions Lab {__version__}"
-    )
-
-    parser.add_argument(
-        "--verbose", "-v", action="store_true", help="Enable verbose output"
-    )
-
-    # Create subparsers for each command
-    subparsers = parser.add_subparsers(
-        dest="command", help="Available commands", metavar="COMMAND"
-    )
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Chat command
-    chat_parser = subparsers.add_parser("chat", help="Chat with LLM backends")
+    chat_parser = subparsers.add_parser("chat", help="Chat with mock LLM")
+    chat_parser.add_argument("message", help="Message to send")
+    chat_parser.add_argument("--system-prompt", help="System prompt")
     chat_parser.add_argument(
-        "--message", "-m", required=True, help="Message to send to the LLM"
-    )
-    chat_parser.add_argument(
-        "--backend",
-        choices=["local", "openai", "anthropic"],
-        help="Override default LLM backend",
-    )
-    chat_parser.add_argument(
-        "--system-prompt", help="System prompt to use for the conversation"
+        "--verbose", "-v", action="store_true", help="Verbose output"
     )
 
     # RAG command
-    rag_parser = subparsers.add_parser("rag", help="Query documents using RAG pipeline")
+    rag_parser = subparsers.add_parser("rag", help="RAG document querying")
+    rag_parser.add_argument("query", help="Query to search for")
     rag_parser.add_argument(
-        "--query", "-q", required=True, help="Query to search for in documents"
+        "--top-k", type=int, default=5, help="Number of top results"
     )
     rag_parser.add_argument(
-        "--index", help="Path to vector index (default: ./data/index)"
-    )
-    rag_parser.add_argument(
-        "--top-k",
-        type=int,
-        default=5,
-        help="Number of top chunks to retrieve (default: 5)",
-    )
-    rag_parser.add_argument(
-        "--include-sources",
-        action="store_true",
-        help="Include source documents in output",
+        "--verbose", "-v", action="store_true", help="Verbose output"
     )
 
     # Agent command
-    agent_parser = subparsers.add_parser("agent", help="Run agent with tool calling")
+    agent_parser = subparsers.add_parser("agent", help="Run agent with tools")
+    agent_parser.add_argument("goal", help="Goal for the agent")
+    agent_parser.add_argument("--tools", nargs="+", help="Tools to use")
+    agent_parser.add_argument("--max-steps", type=int, default=5, help="Maximum steps")
     agent_parser.add_argument(
-        "--goal", "-g", required=True, help="Goal for the agent to accomplish"
-    )
-    agent_parser.add_argument(
-        "--tools", nargs="+", help="Specific tools to use (default: all available)"
-    )
-    agent_parser.add_argument(
-        "--max-steps",
-        type=int,
-        default=10,
-        help="Maximum number of steps for agent (default: 10)",
-    )
-    agent_parser.add_argument(
-        "--verbose-execution", action="store_true", help="Show detailed execution steps"
+        "--verbose", "-v", action="store_true", help="Verbose output"
     )
 
-    # Ingest command
-    ingest_parser = subparsers.add_parser(
-        "ingest", help="Build vector index from documents"
-    )
-    ingest_subparsers = ingest_parser.add_subparsers(
-        dest="ingest_command", help="Ingest subcommands"
+    # Health command
+    health_parser = subparsers.add_parser("health", help="Check system health")
+    health_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Verbose output"
     )
 
-    # Ingest build command
-    build_parser = ingest_subparsers.add_parser(
-        "build", help="Build vector index from source documents"
-    )
-    build_parser.add_argument(
-        "--src",
-        "-s",
-        required=True,
-        type=Path,
-        help="Source directory containing documents",
-    )
-    build_parser.add_argument(
-        "--out",
-        "-o",
-        required=True,
-        type=Path,
-        help="Output directory for vector index",
-    )
-    build_parser.add_argument(
-        "--chunk-size",
-        type=int,
-        default=1000,
-        help="Document chunk size (default: 1000)",
-    )
-    build_parser.add_argument(
-        "--chunk-overlap", type=int, default=200, help="Chunk overlap (default: 200)"
-    )
-    build_parser.add_argument(
-        "--force", action="store_true", help="Force rebuild existing index"
-    )
-
-    # Ingest list command
-    list_parser = ingest_subparsers.add_parser("list", help="List available indexes")
-    list_parser.add_argument(
-        "--index-dir", type=Path, help="Index directory to list (default: ./data/index)"
+    # Config command
+    config_parser = subparsers.add_parser("config", help="Show configuration")
+    config_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Verbose output"
     )
 
     return parser
@@ -153,23 +60,27 @@ Examples:
 
 async def run_chat(args: argparse.Namespace) -> None:
     """Run chat command."""
-    settings = get_settings()
-
-    # Override backend if specified
-    if args.backend:
-        settings.model_backend = args.backend
-
     try:
-        router = LLMRouter()
-        response = await router.chat(
-            message=args.message, system_prompt=args.system_prompt
-        )
-
         if args.verbose:
-            print(f"Backend: {settings.model_backend}")
-            print(f"Response time: {response.get('response_time', 'N/A')}s")
+            print(f"Chat: {args.message}")
+            if args.system_prompt:
+                print(f"System: {args.system_prompt}")
+            print("-" * 50)
 
-        print(f"\n{response['content']}")
+        # Mock LLM response
+        settings = get_settings()
+        if settings.mock_llm_enabled:
+            # Simulate processing delay
+            await asyncio.sleep(settings.mock_response_delay)
+
+            system_context = (
+                f"System: {args.system_prompt}\n" if args.system_prompt else ""
+            )
+            mock_response = f"{system_context}Mock LLM Response: I understand you said '{args.message}'. This is a simulated response from the AI Solutions Lab mock LLM."
+        else:
+            mock_response = "Mock LLM is disabled. Please configure a real LLM backend."
+
+        print(f"Response: {mock_response}")
 
     except Exception as e:
         print(f"Error in chat: {e}", file=sys.stderr)
@@ -182,29 +93,38 @@ async def run_chat(args: argparse.Namespace) -> None:
 
 async def run_rag(args: argparse.Namespace) -> None:
     """Run RAG command."""
-    settings = get_settings()
-
     try:
-        # Initialize RAG components
-        index_path = Path(args.index) if args.index else settings.index_dir
-        answerer = RAGAnswerer(index_path=str(index_path))
+        if args.verbose:
+            print(f"RAG Query: {args.query}")
+            print(f"Top K: {args.top_k}")
+            print("-" * 50)
 
-        # Get answer
-        result = await answerer.answer(query=args.query, top_k=args.top_k)
+        # Mock RAG response
+        settings = get_settings()
+        top_k = args.top_k or settings.top_k
 
-        print(f"\nAnswer: {result['answer']}")
+        # Simulate document retrieval
+        mock_sources = [
+            {
+                "title": f"Document {i}",
+                "content": f"Mock content about {args.query}",
+                "score": 0.9 - (i * 0.1),
+                "source_path": f"/mock/doc_{i}.md",
+            }
+            for i in range(min(top_k, 3))
+        ]
 
-        if args.include_sources or args.verbose:
-            print(f"\nSources ({len(result['sources'])}):")
-            for i, source in enumerate(result["sources"], 1):
-                print(f"{i}. {source['title']} (score: {source['score']:.3f})")
-                if args.verbose:
-                    print(f"   Content: {source['content'][:200]}...")
-                print()
+        # Generate mock answer
+        mock_answer = f"Based on the retrieved documents, here's what I found about '{args.query}': This is a simulated RAG response demonstrating the retrieval-augmented generation pipeline."
+
+        print(f"Answer: {mock_answer}")
 
         if args.verbose:
-            print(f"Query time: {result.get('query_time', 'N/A')}s")
-            print(f"Total chunks retrieved: {len(result['sources'])}")
+            print(f"\nSources ({len(mock_sources)}):")
+            for i, source in enumerate(mock_sources, 1):
+                print(f"{i}. {source['title']} (score: {source['score']:.3f})")
+                print(f"   Content: {source['content'][:100]}...")
+                print()
 
     except Exception as e:
         print(f"Error in RAG: {e}", file=sys.stderr)
@@ -218,41 +138,39 @@ async def run_rag(args: argparse.Namespace) -> None:
 async def run_agent(args: argparse.Namespace) -> None:
     """Run agent command."""
     try:
-        # Initialize agent components
-        tool_registry = ToolRegistry()
-        router = LLMRouter()
-
-        # Get available tools
-        available_tools = (
-            args.tools if args.tools else list(tool_registry.list_tools().keys())
-        )
-
         if args.verbose:
-            print(f"Available tools: {', '.join(available_tools)}")
             print(f"Goal: {args.goal}")
+            print(f"Tools: {args.tools or 'All available'}")
             print(f"Max steps: {args.max_steps}")
             print("-" * 50)
 
-        # Run agent
-        result = await router.run_agent(
-            goal=args.goal, tools=available_tools, max_steps=args.max_steps
-        )
+        # Mock agent execution
+        mock_steps = [
+            {
+                "tool": "search",
+                "input": f"Searching for information about: {args.goal}",
+                "output": "Found relevant information",
+                "step": 1,
+            },
+            {
+                "tool": "process",
+                "input": "Processing search results",
+                "output": "Information processed successfully",
+                "step": 2,
+            },
+        ]
 
-        print(f"\nResult: {result['result']}")
+        mock_result = f"Goal accomplished: {args.goal}. This was achieved through simulated tool execution."
 
-        if args.verbose_execution or args.verbose:
-            print(f"\nExecution steps ({len(result['steps'])}):")
-            for i, step in enumerate(result["steps"], 1):
-                print(f"{i}. Tool: {step['tool']}")
+        print(f"Result: {mock_result}")
+
+        if args.verbose:
+            print(f"\nExecution steps ({len(mock_steps)}):")
+            for step in mock_steps:
+                print(f"{step['step']}. Tool: {step['tool']}")
                 print(f"   Input: {step['input']}")
                 print(f"   Output: {step['output']}")
                 print()
-
-        if args.verbose:
-            print(f"Total execution time: {result.get('execution_time', 'N/A')}s")
-            print(
-                f"Tools used: {', '.join(set(step['tool'] for step in result['steps']))}"
-            )
 
     except Exception as e:
         print(f"Error in agent: {e}", file=sys.stderr)
@@ -263,46 +181,31 @@ async def run_agent(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
-async def run_ingest(args: argparse.Namespace) -> None:
-    """Run ingest command."""
-    if args.ingest_command == "build":
-        await run_ingest_build(args)
-    elif args.ingest_command == "list":
-        await run_ingest_list(args)
-    else:
-        print("Error: Must specify ingest subcommand (build or list)", file=sys.stderr)
-        sys.exit(1)
-
-
-async def run_ingest_build(args: argparse.Namespace) -> None:
-    """Run ingest build command."""
+async def run_health(args: argparse.Namespace) -> None:
+    """Run health command."""
     try:
-        ingester = DocumentIngester()
-
         if args.verbose:
-            print(f"Building index from: {args.src}")
-            print(f"Output directory: {args.out}")
-            print(f"Chunk size: {args.chunk_size}")
-            print(f"Chunk overlap: {args.chunk_overlap}")
+            print("Checking system health...")
             print("-" * 50)
 
-        # Build index
-        result = await ingester.build_index(
-            source_dir=args.src,
-            output_dir=args.out,
-            chunk_size=args.chunk_size,
-            chunk_overlap=args.chunk_overlap,
-            force=args.force,
-        )
+        # Mock health check
+        import time
 
-        print(f"Index built successfully!")
-        print(f"Documents processed: {result['documents_processed']}")
-        print(f"Chunks created: {result['chunks_created']}")
-        print(f"Index size: {result['index_size_mb']:.2f} MB")
-        print(f"Build time: {result['build_time']:.2f}s")
+        backends = {
+            "local": True,
+            "openai": False,  # Mock - no API key
+            "anthropic": False,  # Mock - no API key
+        }
+
+        print(f"Status: healthy")
+        print(f"Timestamp: {time.time()}")
+        print(f"Version: 0.1.0")
+        print(f"Backends:")
+        for name, status in backends.items():
+            print(f"  {name}: {'✓' if status else '✗'}")
 
     except Exception as e:
-        print(f"Error building index: {e}", file=sys.stderr)
+        print(f"Error in health check: {e}", file=sys.stderr)
         if args.verbose:
             import traceback
 
@@ -310,34 +213,25 @@ async def run_ingest_build(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
-async def run_ingest_list(args: argparse.Namespace) -> None:
-    """Run ingest list command."""
-    settings = get_settings()
-    index_dir = args.index_dir if args.index_dir else settings.index_dir
-
+async def run_config(args: argparse.Namespace) -> None:
+    """Run config command."""
     try:
-        if not index_dir.exists():
-            print(f"No index directory found at: {index_dir}")
-            return
+        if args.verbose:
+            print("Current configuration:")
+            print("-" * 50)
 
-        print(f"Available indexes in: {index_dir}")
-        print("-" * 50)
+        settings = get_settings()
 
-        for item in index_dir.iterdir():
-            if item.is_dir():
-                # Check if it's a valid index
-                index_files = list(item.glob("*.faiss")) + list(item.glob("*.pkl"))
-                if index_files:
-                    size_mb = sum(f.stat().st_size for f in index_files) / (1024 * 1024)
-                    print(f"📁 {item.name} ({size_mb:.2f} MB)")
-                else:
-                    print(f"📁 {item.name} (empty)")
-            elif item.is_file() and item.suffix in [".faiss", ".pkl"]:
-                size_mb = item.stat().st_size / (1024 * 1024)
-                print(f"📄 {item.name} ({size_mb:.2f} MB)")
+        print(f"Host: {settings.host}")
+        print(f"Port: {settings.port}")
+        print(f"Debug: {settings.debug}")
+        print(f"Mock LLM: {settings.mock_llm_enabled}")
+        print(f"Top K: {settings.top_k}")
+        print(f"Chunk Size: {settings.chunk_size}")
+        print(f"Chunk Overlap: {settings.chunk_overlap}")
 
     except Exception as e:
-        print(f"Error listing indexes: {e}", file=sys.stderr)
+        print(f"Error in config: {e}", file=sys.stderr)
         if args.verbose:
             import traceback
 
@@ -354,44 +248,21 @@ async def main() -> None:
         parser.print_help()
         sys.exit(1)
 
-    # Set up logging if verbose
-    if args.verbose:
-        import logging
-
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        )
-
-    try:
-        if args.command == "chat":
-            await run_chat(args)
-        elif args.command == "rag":
-            await run_rag(args)
-        elif args.command == "agent":
-            await run_agent(args)
-        elif args.command == "ingest":
-            await run_ingest(args)
-        else:
-            print(f"Unknown command: {args.command}", file=sys.stderr)
-            sys.exit(1)
-
-    except KeyboardInterrupt:
-        print("\nOperation cancelled by user", file=sys.stderr)
-        sys.exit(130)
-    except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
-        if args.verbose:
-            import traceback
-
-            traceback.print_exc()
+    # Route to appropriate command
+    if args.command == "chat":
+        await run_chat(args)
+    elif args.command == "rag":
+        await run_rag(args)
+    elif args.command == "agent":
+        await run_agent(args)
+    elif args.command == "health":
+        await run_health(args)
+    elif args.command == "config":
+        await run_config(args)
+    else:
+        print(f"Unknown command: {args.command}", file=sys.stderr)
         sys.exit(1)
 
 
-def cli_main() -> None:
-    """Entry point for console script."""
-    asyncio.run(main())
-
-
 if __name__ == "__main__":
-    cli_main()
+    asyncio.run(main())
