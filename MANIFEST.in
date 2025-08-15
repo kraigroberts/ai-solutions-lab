@@ -1,0 +1,24 @@
+# AI Solutions Lab - Package Manifest
+# Include all necessary files for distribution
+
+# Include text files
+include *.txt
+include *.md
+include LICENSE
+
+# Include Dockerfile
+include Dockerfile
+
+# Include data files
+recursive-include data *.py
+recursive-include data *.md
+
+# Include test files
+recursive-include tests *.py
+
+# Include source files
+recursive-include src *.py
+
+# Include configuration files
+include pyproject.toml
+include .gitignore
