@@ -11,14 +11,8 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 
 from ai_lab.rag.answer import RAGAnswerer
-from ai_lab.rag.ingest import (
-    DocumentChunk,
-    DocumentIngester,
-    DocumentLoader,
-    MarkdownLoader,
-    PDFLoader,
-    TextLoader,
-)
+from ai_lab.rag.ingest import (DocumentChunk, DocumentIngester, DocumentLoader,
+                               MarkdownLoader, PDFLoader, TextLoader)
 from ai_lab.rag.retrieve import VectorRetriever
 
 

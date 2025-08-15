@@ -78,9 +78,10 @@ class VectorRetriever:
 
             # Reconstruct chunk objects
             self.chunks = []
-            for chunk_data in self.metadata["chunks"]:
-                chunk = DocumentChunk.from_dict(chunk_data)
-                self.chunks.append(chunk)
+            if self.metadata and "chunks" in self.metadata:
+                for chunk_data in self.metadata["chunks"]:
+                    chunk = DocumentChunk.from_dict(chunk_data)
+                    self.chunks.append(chunk)
 
             print(f"Loaded {len(self.chunks)} document chunks")
 
@@ -354,8 +355,8 @@ class VectorRetriever:
                     "total_content_length": 0,
                 }
 
-            documents[doc_id]["chunk_count"] = int(documents[doc_id]["chunk_count"]) + 1
-            documents[doc_id]["total_content_length"] = int(
+            documents[doc_id]["chunk_count"] = documents[doc_id]["chunk_count"] + 1
+            documents[doc_id]["total_content_length"] = (
                 documents[doc_id]["total_content_length"]
             ) + len(chunk.content)
 
