@@ -9,10 +9,10 @@ import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch, AsyncMock
 
-from src.ai_lab.tools.registry import Tool, ToolRegistry
-from src.ai_lab.tools.search import SearchTool
-from src.ai_lab.tools.math import MathTool
-from src.ai_lab.tools.webstub import WebStubTool
+from ai_lab.tools.registry import Tool, ToolRegistry
+from ai_lab.tools.search import SearchTool
+from ai_lab.tools.math import MathTool
+from ai_lab.tools.webstub import WebStubTool
 
 
 class TestTool:
@@ -176,7 +176,7 @@ class TestSearchTool:
     @pytest.fixture
     def mock_retriever(self):
         """Mock VectorRetriever."""
-        with patch('src.ai_lab.tools.search.VectorRetriever') as mock_retriever_class:
+        with patch('ai_lab.tools.search.VectorRetriever') as mock_retriever_class:
             mock_retriever = Mock()
             mock_retriever.is_loaded.return_value = True
             mock_retriever.retrieve = AsyncMock(return_value=[
@@ -601,7 +601,7 @@ class TestToolPerformance:
     @pytest.mark.asyncio
     async def test_search_tool_performance(self):
         """Test search tool performance."""
-        with patch('src.ai_lab.tools.search.VectorRetriever') as mock_retriever_class:
+        with patch('ai_lab.tools.search.VectorRetriever') as mock_retriever_class:
             mock_retriever = Mock()
             mock_retriever.is_loaded.return_value = True
             mock_retriever.retrieve = AsyncMock(return_value=[
@@ -645,7 +645,7 @@ class TestToolErrorHandling:
     @pytest.mark.asyncio
     async def test_search_tool_error_handling(self):
         """Test search tool error handling."""
-        with patch('src.ai_lab.tools.search.VectorRetriever') as mock_retriever_class:
+        with patch('ai_lab.tools.search.VectorRetriever') as mock_retriever_class:
             mock_retriever = Mock()
             mock_retriever.is_loaded.return_value = True
             mock_retriever.retrieve = AsyncMock(side_effect=Exception("Database error"))

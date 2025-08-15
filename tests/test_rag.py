@@ -9,12 +9,12 @@ import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch, AsyncMock
 
-from src.ai_lab.rag.ingest import (
+from ai_lab.rag.ingest import (
     DocumentChunk, DocumentLoader, MarkdownLoader, 
     PDFLoader, TextLoader, DocumentIngester
 )
-from src.ai_lab.rag.retrieve import VectorRetriever
-from src.ai_lab.rag.answer import RAGAnswerer
+from ai_lab.rag.retrieve import VectorRetriever
+from ai_lab.rag.answer import RAGAnswerer
 
 
 class TestDocumentChunk:
@@ -146,7 +146,7 @@ class TestDocumentIngester:
     @pytest.fixture
     def mock_settings(self):
         """Mock settings for testing."""
-        with patch('src.ai_lab.rag.ingest.get_settings') as mock_get_settings:
+        with patch('ai_lab.rag.ingest.get_settings') as mock_get_settings:
             mock_settings = Mock()
             mock_settings.embeddings_backend = "local"
             mock_settings.embedding_model = "all-MiniLM-L6-v2"
@@ -229,7 +229,7 @@ class TestVectorRetriever:
     @pytest.fixture
     def mock_settings(self):
         """Mock settings for testing."""
-        with patch('src.ai_lab.rag.retrieve.get_settings') as mock_get_settings:
+        with patch('ai_lab.rag.retrieve.get_settings') as mock_get_settings:
             mock_settings = Mock()
             mock_settings.embeddings_backend = "local"
             mock_settings.embedding_model = "all-MiniLM-L6-v2"
@@ -296,7 +296,7 @@ class TestRAGAnswerer:
     @pytest.fixture
     def mock_settings(self):
         """Mock settings for testing."""
-        with patch('src.ai_lab.rag.answer.get_settings') as mock_get_settings:
+        with patch('ai_lab.rag.answer.get_settings') as mock_get_settings:
             mock_settings = Mock()
             mock_settings.top_k = 5
             mock_get_settings.return_value = mock_settings
@@ -305,7 +305,7 @@ class TestRAGAnswerer:
     @pytest.fixture
     def mock_retriever(self):
         """Mock VectorRetriever."""
-        with patch('src.ai_lab.rag.answer.VectorRetriever') as mock_retriever_class:
+        with patch('ai_lab.rag.answer.VectorRetriever') as mock_retriever_class:
             mock_retriever = Mock()
             mock_retriever.is_loaded.return_value = True
             mock_retriever_class.return_value = mock_retriever
@@ -314,7 +314,7 @@ class TestRAGAnswerer:
     @pytest.fixture
     def mock_llm_router(self):
         """Mock LLMRouter."""
-        with patch('src.ai_lab.rag.answer.LLMRouter') as mock_router_class:
+        with patch('ai_lab.rag.answer.LLMRouter') as mock_router_class:
             mock_router = Mock()
             mock_router.chat = AsyncMock(return_value={"content": "Test answer"})
             mock_router_class.return_value = mock_router

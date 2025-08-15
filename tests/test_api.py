@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch, AsyncMock
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
 
-from src.ai_lab.api import app
+from ai_lab.api import app
 
 
 @pytest.fixture
@@ -22,7 +22,7 @@ def client():
 @pytest.fixture
 def mock_settings():
     """Mock settings for testing."""
-    with patch('src.ai_lab.api.get_settings') as mock_get_settings:
+    with patch('ai_lab.api.get_settings') as mock_get_settings:
         mock_settings = Mock()
         mock_settings.has_openai.return_value = True
         mock_settings.has_anthropic.return_value = True
@@ -34,7 +34,7 @@ def mock_settings():
 @pytest.fixture
 def mock_llm_router():
     """Mock LLM router for testing."""
-    with patch('src.ai_lab.api.LLMRouter') as mock_router_class:
+    with patch('ai_lab.api.LLMRouter') as mock_router_class:
         mock_router = Mock()
         mock_router.chat = AsyncMock(return_value={
             "content": "Test response",
@@ -52,7 +52,7 @@ def mock_llm_router():
 @pytest.fixture
 def mock_rag_answerer():
     """Mock RAG answerer for testing."""
-    with patch('src.ai_lab.api.RAGAnswerer') as mock_answerer_class:
+    with patch('ai_lab.api.RAGAnswerer') as mock_answerer_class:
         mock_answerer = Mock()
         mock_answerer.answer = AsyncMock(return_value={
             "answer": "Test answer",
@@ -66,7 +66,7 @@ def mock_rag_answerer():
 @pytest.fixture
 def mock_tool_registry():
     """Mock tool registry for testing."""
-    with patch('src.ai_lab.api.ToolRegistry') as mock_registry_class:
+    with patch('ai_lab.api.ToolRegistry') as mock_registry_class:
         mock_registry = Mock()
         mock_registry.list_tools.return_value = {
             "search": {"name": "search", "description": "Search tool"},
