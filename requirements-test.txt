@@ -11,6 +11,8 @@ pytest
 
 # Minimal ML (lightweight versions)
 numpy
+sentence-transformers
+faiss-cpu
 
 # Document processing (needed for tests)
 pypdf
