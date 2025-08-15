@@ -1,0 +1,26 @@
+# CI-optimized requirements for faster testing
+# Core dependencies needed for tests
+fastapi
+uvicorn
+pydantic
+python-dotenv
+pytest
+
+# Lightweight ML dependencies (no heavy models)
+sentence-transformers[torch]
+faiss-cpu
+numpy
+
+# Document processing
+pypdf
+
+# API clients (lightweight)
+openai
+anthropic
+
+# Security and utilities
+PyJWT
+psutil
+
+# Note: docker excluded from CI (not needed for tests)
+# Note: llama-cpp-python excluded from CI (too heavy, not needed for tests)
