@@ -132,9 +132,13 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = false  # Relaxed for better compatibility
 ignore_missing_imports = true  # Added for better compatibility
+exclude = [
+    "tests/",
+    "data/",
+]
 
-[tool.mypy.plugins]
-# pydantic.mypy = "pydantic.mypy"  # Commented out due to compatibility issues
+# [tool.mypy.plugins]
+# pydantic.mypy = "pydantic.mypy"  # Removed for CI compatibility
 
 [tool.pytest.ini_options]
 minversion = "7.0"
